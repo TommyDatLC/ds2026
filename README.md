@@ -12,3 +12,5 @@ Student Info
 * Student Name: Nguyễn Đức Đạt 
 * Student ID: 22BA13065
 * Student Group ID: 22BA13065
+# Prac1: 
+https://www.youtube.com/watch?v=2alxokA1zR0
