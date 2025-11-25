@@ -14,3 +14,4 @@ Student Info
 * Student Group ID: 22BA13065
 # Prac1: 
 https://www.youtube.com/watch?v=2alxokA1zR0
+https://www.tiktok.com/@dong_code/video/7575766619188792583 
