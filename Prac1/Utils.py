@@ -2,7 +2,8 @@
 SERVER_UPLOAD = b'\0'
 SERVER_DOWNLOAD = b'\1'
 
-port = 9999
+port = 9996
+chunk = 1
 import socket
 import random
 import os
@@ -31,11 +32,10 @@ def recv_file_sep(filename : str, client : socket.socket ,isDownloadedFromServer
         file = open("down_" + filename , "wb")
     else:
         file = open(filename,"wb")
-    while True:
-        data = client.recv(1024) # Hứng hàng
-        if not data:
-            break # Hết hàng rồi, nghỉ
+    data = client.recv(chunk) # Hứng hàng
+    while data:
         file.write(data)
+        data = client.recv(chunk) 
     file.close()
 
 def send_file_sep(filename : str , client : socket.socket ):
@@ -43,9 +43,9 @@ def send_file_sep(filename : str , client : socket.socket ):
         print("file not exists")
         return
     file = open(filename, "rb")
-    data = file.read(1024) # Cắn một miếng 1024 bytes
+    data = file.read(chunk) # Cắn một miếng 1024 bytes
     while data:
         client.send(data) # Nhai và nuốt
-        data = file.read(1024) # Cắn miếng tiếp theo
+        data = file.read(chunk) # Cắn miếng tiếp theo
     file.close()
     print("Đã gửi xong, mệt vãi nồi!")
