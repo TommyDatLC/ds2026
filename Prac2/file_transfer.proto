@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+// Đặt tên package cho nó sang, như kiểu hàng hiệu
+package file_transfer;
+
+// Service: Nơi định nghĩa các hàm mà Server sẽ phải cày
+service FileTransfer {
+  // Hàm Upload: Nhận vào một DÒNG CHẢY (stream) các request
+  // Trả về một trạng thái duy nhất (UploadStatus)
+  rpc Upload (stream UploadRequest) returns (UploadStatus) {}
+}
+
+// Request gửi đi: Dùng oneof để tiết kiệm băng thông
+// Một gói tin chỉ được phép là "Thông tin file" HOẶC "Dữ liệu file"
+message UploadRequest {
+  oneof request_type {
+    FileInfo info = 1;
+    bytes chunk_data = 2;
+  }
+}
+
+// Thông tin file: Gộp tên và đuôi lại. Ví dụ: "tai_lieu_mat.mp4"
+message FileInfo {
+  string filename = 1;
+}
+
+// Kết quả trả về: Thành công hay thất bại?
+message UploadStatus {
+  string message = 1;
+  bool success = 2;
+}
