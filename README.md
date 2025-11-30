@@ -1,3 +1,8 @@
+# Prac1: 
+https://www.tiktok.com/@dong_code/video/7575766619188792583 <br>
+https://www.youtube.com/watch?v=2alxokA1zR0 <br>
+
+
 USTH 2026: DISTRIBUTED SYSTEM
 =====================================================
 

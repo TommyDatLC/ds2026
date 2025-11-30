@@ -2,7 +2,7 @@ import socket
 import os
 import Utils
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(('0.0.0.0',Utils.port))
+client.connect(('localhost',Utils.port))
 def uploadFile():
     filename = input()
     only_filename = os.path.basename(filename)

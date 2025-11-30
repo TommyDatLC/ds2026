@@ -2,8 +2,8 @@
 SERVER_UPLOAD = b'\0'
 SERVER_DOWNLOAD = b'\1'
 
-port = 9996
-chunk = 1
+port = 9999
+chunk = 1024
 import socket
 import random
 import os
