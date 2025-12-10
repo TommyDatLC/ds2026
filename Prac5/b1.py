@@ -4,98 +4,87 @@ import sys
 import threading
 
 # Lock để tránh in chồng chéo khi nhiều thread
-Lock = threading.Lock()
-
+print_lock = threading.Lock()
 
 # =======================
 # MAPPER
 # =======================
-def mapper(line):
-    path = line.strip()
-    if not path:
+def map_line(line):
+    file_path = line.strip()
+    if not file_path:
         return None
 
-    return ("longest", (len(path), path))
-
+    return ("longest_path", (len(file_path), file_path))
 
 # =======================
 # REDUCER
 # =======================
-def reducer(key, values):
+def reduce_max(key, values):
     # values: list[(length, path)]
     return max(values)
-
 
 # =======================
 # MAP TASK (1 THREAD / FILE)
 # =======================
-def map_task(filename):
+def process_file(file_name):
     """
     Mỗi thread xử lý 1 file input
     """
-    results = []
+    mapped_results = []
 
     try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            for line_num, line in enumerate(f, 1):
+        with open(file_name, 'r', encoding='utf-8') as f:
+            for line_number, line in enumerate(f, 1):
                 # gọi hàm mapper cho mỗi dòng
-                output = mapper(line)
-                if output:
+                mapped = map_line(line)
+                if mapped:
                     # lưu key, value vào kết quả thread
-                    results.append(output)
+                    mapped_results.append(mapped)
 
-                    key, (length, path) = output
-                    with Lock:
+                    key, (path_length, file_path) = mapped
+                    with print_lock:
                         # in thông tin đường dẫn và độ dài
-                        print(f"[{filename}] Line {line_num:3d} | Length={length:3d} | {path}")
+                        print(f"[{file_name}] Line {line_number:3d} | Length={path_length:3d} | {file_path}")
 
     except FileNotFoundError:
-        with Lock:
-            print(f"❌ Không tìm thấy file: {filename}")
+        with print_lock:
+            print(f"❌ Không tìm thấy file: {file_name}")
 
-    return results
-
+    return mapped_results
 
 # =======================
 # MAPREDUCE (MULTITHREADING)
 # =======================
-# khởi tạo xử lý luồng
-def mapreduce_multithreading(input_files):
-    map_output = []
+def run_mapreduce(input_file_list):
+    all_mapped = []
 
     # -------- MAP PHASE (parallel) --------
-    # tối đa 8 threads hoặc ít hơn nếu có ít file hơn
-    with ThreadPoolExecutor(max_workers=min(8, len(input_files))) as executor:
-        # khởi chạy các task map song song
-        futures = [executor.submit(map_task, f) for f in input_files]
+    with ThreadPoolExecutor(max_workers=min(8, len(input_file_list))) as executor:
+        futures = [executor.submit(process_file, f) for f in input_file_list]
 
         # lấy kết quả khi các thread hoàn thành
         for future in as_completed(futures):
-            # gom kết quả mapper từ tất cả thread
-            map_output.extend(future.result())
+            all_mapped.extend(future.result())
 
-    if not map_output:
+    if not all_mapped:
         print("❌ Không có dữ liệu hợp lệ")
         return
 
     # -------- SHUFFLE PHASE --------
-    shuffled = defaultdict(list)
-    # gom tất cả theo key (longest)
-    print(map_output)
-    for key, value in map_output:
-        shuffled[key].append(value)
+    grouped_by_key = defaultdict(list)
+
+    print(all_mapped)
+    for key, value in all_mapped:
+        grouped_by_key[key].append(value)
 
     # -------- REDUCE PHASE --------
-    # xử lý từng key
-    for key, values in shuffled.items():
+    for key, values in grouped_by_key.items():
         # tìm longest path
-        max_length, longest_path = reducer(key, values)
+        max_length, longest_path = reduce_max(key, values)
 
-        
         print(f"Độ dài lớn nhất: {max_length} ký tự")
         print("Đường dẫn dài nhất:")
         print(f"  {longest_path}")
-
 
 # =======================
 # MAIN
@@ -105,9 +94,8 @@ def main():
         print("❌ Cần ít nhất 1 file input")
         sys.exit(1)
 
-    input_files = sys.argv[1:]
-    mapreduce_multithreading(input_files)
-
+    input_file_list = sys.argv[1:]
+    run_mapreduce(input_file_list)
 
 if __name__ == "__main__":
     main()
