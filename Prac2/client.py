@@ -30,7 +30,7 @@ def generate_requests(file_path):
 def run():
     # Kết nối tới cái động bàn tơ của Server
     #[cite_start]# [cite: 413] Create stub functions
-    with grpc.insecure_channel('localhost:50051') as channel:
+    with grpc.insecure_channel('192.168.0.101:50051') as channel:
         stub = file_transfer_pb2_grpc.FileTransferStub(channel)
         
         # Nhập tên file cần gửi (nhớ là file phải tồn tại nhé các thần đồng)
